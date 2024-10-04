@@ -1,0 +1,287 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Slide Deck Submission",
+  "type": "object",
+  "properties": {
+    "submission_id": {
+      "type": "string",
+      "description": "A unique identifier for the submission"
+    },
+    "submitter": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        }
+      },
+      "required": [
+        "name",
+        "email"
+      ]
+    },
+    "deck_info": {
+      "type": "object",
+      "properties": {
+        "deck_type": {
+          "type": "string",
+          "enum": [
+            "PDF",
+            "Google Slides",
+            "Keynote",
+            "Figma",
+            "Canva"
+          ]
+        },
+        "file_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "slide_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "file_size_mb": {
+          "type": "number",
+          "minimum": 0.1
+        },
+        "fonts_used": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "videos_present": {
+          "type": "boolean"
+        },
+        "audio_present": {
+          "type": "boolean"
+        },
+        "image_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "deck_type",
+        "slide_count",
+        "file_size_mb"
+      ]
+    },
+    "deterministic_checks": {
+      "type": "object",
+      "properties": {
+        "format_check": {
+          "type": "object",
+          "properties": {
+            "accepted_format": {
+              "type": "boolean"
+            },
+            "file_type": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "accepted_format",
+            "file_type",
+            "message"
+          ]
+        },
+        "size_check": {
+          "type": "object",
+          "properties": {
+            "size_within_limit": {
+              "type": "boolean"
+            },
+            "file_size_mb": {
+              "type": "number"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "size_within_limit",
+            "file_size_mb",
+            "message"
+          ]
+        },
+        "slide_count_check": {
+          "type": "object",
+          "properties": {
+            "slide_count_within_limit": {
+              "type": "boolean"
+            },
+            "slide_count": {
+              "type": "integer"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "slide_count_within_limit",
+            "slide_count",
+            "message"
+          ]
+        }
+      },
+      "required": [
+        "format_check",
+        "size_check",
+        "slide_count_check"
+      ]
+    },
+    "probabilistic_checks": {
+      "type": "object",
+      "properties": {
+        "title_slide_check": {
+          "type": "object",
+          "properties": {
+            "has_title_slide": {
+              "type": "boolean"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "has_title_slide",
+            "message"
+          ]
+        },
+        "bullet_point_check": {
+          "type": "object",
+          "properties": {
+            "has_few_bullet_points": {
+              "type": "boolean"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "has_few_bullet_points",
+            "message"
+          ]
+        },
+        "image_check": {
+          "type": "object",
+          "properties": {
+            "has_images": {
+              "type": "boolean"
+            },
+            "image_count": {
+              "type": "integer"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "has_images",
+            "image_count",
+            "message"
+          ]
+        }
+      },
+      "required": [
+        "title_slide_check",
+        "bullet_point_check",
+        "image_check"
+      ]
+    },
+    "status": {
+      "type": "object",
+      "properties": {
+        "all_tests_passed": {
+          "type": "boolean"
+        },
+        "submission_allowed": {
+          "type": "boolean"
+        },
+        "next_steps": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "all_tests_passed",
+        "submission_allowed",
+        "next_steps"
+      ]
+    },
+    "admin_info": {
+      "type": "object",
+      "properties": {
+        "admin_submission_status": {
+          "type": "string",
+          "enum": [
+            "In Review",
+            "Approved",
+            "Rejected"
+          ]
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "check": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "check",
+              "description"
+            ]
+          }
+        },
+        "total_submissions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_errors": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "decks_to_merge": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "admin_submission_status",
+        "submitted_at",
+        "total_submissions",
+        "decks_to_merge"
+      ]
+    }
+  },
+  "required": [
+    "submission_id",
+    "submitter",
+    "deck_info",
+    "deterministic_checks",
+    "probabilistic_checks",
+    "status",
+    "admin_info"
+  ]
+}

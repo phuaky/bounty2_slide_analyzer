@@ -1,0 +1,30 @@
+# Backend
+slide_analyzer_backend/.env
+slide_analyzer_backend/.venv/
+slide_analyzer_backend/venv/
+slide_analyzer_backend/__pycache__/
+slide_analyzer_backend/uploads/
+
+# Frontend
+slide_analyzer_frontend/node_modules/
+slide_analyzer_frontend/.next/
+slide_analyzer_frontend/out/
+slide_analyzer_frontend/build/
+
+# Node.js
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.pnpm-debug.log
+.npm
+.yarn-integrity
+
+# General
+.DS_Store
+*.log
+*.pyc
+
+# Git
+.git/objects/pack/
+
+.venv/
