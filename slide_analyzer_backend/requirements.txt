@@ -8,6 +8,5 @@ Pillow
 pydantic[email]
 google-api-python-client
 google-auth
-fitz
-frontend
-tools
+PyMuPDF
+python-multipart

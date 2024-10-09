@@ -1,17 +1,30 @@
-// components/SlideAnalysis.tsx
+"use client";
+import React from "react";
 
-'use client';
+interface Analysis {
+  is_title_slide: boolean;
+  bullet_points: number;
+  images: number;
+  adheres_to_best_practices: boolean;
+  suggestions: string;
+}
 
-import React from 'react';
+interface SlideAnalysisItem {
+  slide_number: number;
+  analysis: Analysis;
+}
 
 interface SlideAnalysisProps {
-  slideAnalysis: any[];
+  slideAnalysis: SlideAnalysisItem[];
   selectedSlide: number;
 }
 
-const SlideAnalysis: React.FC<SlideAnalysisProps> = ({ slideAnalysis, selectedSlide }) => {
+const SlideAnalysis: React.FC<SlideAnalysisProps> = ({
+  slideAnalysis,
+  selectedSlide,
+}) => {
   const analysis = slideAnalysis.find(
-    (item) => item.slide_number === selectedSlide
+    (item) => item.slide_number === selectedSlide,
   )?.analysis;
 
   if (!analysis) {
@@ -20,10 +33,13 @@ const SlideAnalysis: React.FC<SlideAnalysisProps> = ({ slideAnalysis, selectedSl
 
   return (
     <div>
-      <h3 className="text-lg font-medium text-gray-900 mb-4">Slide {selectedSlide} Analysis</h3>
+      <h3 className="text-lg font-medium text-gray-900 mb-4">
+        Slide {selectedSlide} Analysis
+      </h3>
       <ul className="space-y-2">
         <li>
-          <strong>Is Title Slide:</strong> {analysis.is_title_slide ? 'Yes' : 'No'}
+          <strong>Is Title Slide:</strong>{" "}
+          {analysis.is_title_slide ? "Yes" : "No"}
         </li>
         <li>
           <strong>Bullet Points:</strong> {analysis.bullet_points}
@@ -32,8 +48,8 @@ const SlideAnalysis: React.FC<SlideAnalysisProps> = ({ slideAnalysis, selectedSl
           <strong>Images:</strong> {analysis.images}
         </li>
         <li>
-          <strong>Adheres to Best Practices:</strong>{' '}
-          {analysis.adheres_to_best_practices ? 'Yes' : 'No'}
+          <strong>Adheres to Best Practices:</strong>{" "}
+          {analysis.adheres_to_best_practices ? "Yes" : "No"}
         </li>
         <li>
           <strong>Suggestions:</strong> {analysis.suggestions}

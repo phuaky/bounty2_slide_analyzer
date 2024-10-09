@@ -1,20 +1,24 @@
-// app/dashboard/page.tsx
+"use client";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Navbar from "@/components/Navbar";
 
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Navbar from '@/components/Navbar';
+// Define a type for the submission object
+interface Submission {
+  id: string;
+  status: string;
+  // Add other properties as needed
+}
 
 export default function Dashboard() {
-  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
 
   useEffect(() => {
     // Fetch user's submissions
     axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/user-submissions/`)
+      .get<Submission[]>(`${process.env.NEXT_PUBLIC_API_URL}/user-submissions/`)
       .then((response) => setSubmissions(response.data))
-      .catch((error) => console.error(error));
+      .catch((error) => console.error("Error fetching submissions:", error));
   }, []);
 
   return (

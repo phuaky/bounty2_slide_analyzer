@@ -1,13 +1,15 @@
 // app/admin/page.tsx
 
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Navbar from '@/components/Navbar';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Navbar from "@/components/Navbar";
 
 export default function AdminDashboard() {
-  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [submissions, setSubmissions] = useState<
+    { id: string; submitter: string; status: string; errors?: string[] }[]
+  >([]);
 
   useEffect(() => {
     // Fetch all submissions
@@ -41,9 +43,7 @@ export default function AdminDashboard() {
                   <td className="py-2">{submission.id}</td>
                   <td className="py-2">{submission.submitter}</td>
                   <td className="py-2">{submission.status}</td>
-                  <td className="py-2">
-                    {/* Display errors if any */}
-                  </td>
+                  <td className="py-2">{/* Display errors if any */}</td>
                   <td className="py-2">
                     {/* Add actions like view details, approve, etc. */}
                   </td>

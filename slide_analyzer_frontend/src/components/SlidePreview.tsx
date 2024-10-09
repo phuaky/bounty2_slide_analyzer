@@ -1,8 +1,6 @@
-// components/SlidePreview.tsx
-
-'use client';
-
-import React from 'react';
+"use client";
+import React from "react";
+import Image from "next/image";
 
 interface SlidePreviewProps {
   numberOfSlides: number;
@@ -25,14 +23,20 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({
           <div
             key={slideNumber}
             onClick={() => setSelectedSlide(slideNumber)}
-            className={`cursor-pointer border ${selectedSlide === slideNumber ? 'border-blue-500' : 'border-gray-300'
-              } rounded-md p-2`}
+            className={`cursor-pointer border ${
+              selectedSlide === slideNumber
+                ? "border-blue-500"
+                : "border-gray-300"
+            } rounded-md p-2`}
           >
-            <img
-              src={`${process.env.NEXT_PUBLIC_API_URL}/slide-thumbnails/${slideNumber}`}
-              alt={`Slide ${slideNumber}`}
-              className="w-full h-auto"
-            />
+            <div className="relative w-full aspect-video">
+              <Image
+                src={`${process.env.NEXT_PUBLIC_API_URL}/slide-thumbnails/${slideNumber}`}
+                alt={`Slide ${slideNumber}`}
+                layout="fill"
+                objectFit="contain"
+              />
+            </div>
             <p className="text-center mt-2">Slide {slideNumber}</p>
           </div>
         ))}

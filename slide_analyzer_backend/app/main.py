@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import slide_analysis
 from app.logging_config import setup_logging
-
+from fastapi.staticfiles import StaticFiles
 
 # Get the directory of the current file
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -28,12 +28,14 @@ logger = setup_logging()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Add your frontend URL
+    allow_origins=["*"],  # Add your frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.mount("/",
+          StaticFiles(directory="../slide_analyzer_frontend/out", html=True),
+          name="frontend")
 # Include routers
 app.include_router(slide_analysis.router)
 

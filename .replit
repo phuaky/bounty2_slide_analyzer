@@ -1,0 +1,13 @@
+run = "./start.sh"
+modules = ["python-3.12", "nodejs-20", "web"]
+
+[nix]
+channel = "stable-24_05"
+
+[[ports]]
+localPort = 3000
+externalPort = 80
+
+[[ports]]
+localPort = 8000
+externalPort = 8000

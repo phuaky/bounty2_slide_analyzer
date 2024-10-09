@@ -1,24 +1,50 @@
-// components/ProgressBar.tsx
+import React from "react";
 
-import React from 'react';
+interface DeterministicChecks {
+  format_check: {
+    accepted_format: boolean;
+  };
+  size_check: {
+    size_within_limit: boolean;
+  };
+  slide_count_check: {
+    slide_count_within_limit: boolean;
+  };
+}
+
+interface ProbabilisticChecks {
+  title_slide_check: {
+    has_title_slide: boolean;
+  };
+  bullet_point_check: {
+    has_few_bullet_points: boolean;
+  };
+  image_check: {
+    has_images: boolean;
+  };
+}
+
+interface AnalysisResult {
+  deterministic_checks: DeterministicChecks;
+  probabilistic_checks: ProbabilisticChecks;
+}
 
 interface ProgressBarProps {
-  analysisResult: any;
+  analysisResult: AnalysisResult;
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ analysisResult }) => {
-  const deterministicChecks = analysisResult.deterministic_checks;
-  const probabilisticChecks = analysisResult.probabilistic_checks;
-
+  const { deterministic_checks, probabilistic_checks } = analysisResult;
   const totalChecks = 6; // Adjust based on actual number of checks
-  let passedChecks = 0;
 
-  if (deterministicChecks.format_check.accepted_format) passedChecks++;
-  if (deterministicChecks.size_check.size_within_limit) passedChecks++;
-  if (deterministicChecks.slide_count_check.slide_count_within_limit) passedChecks++;
-  if (probabilisticChecks.title_slide_check.has_title_slide) passedChecks++;
-  if (probabilisticChecks.bullet_point_check.has_few_bullet_points) passedChecks++;
-  if (probabilisticChecks.image_check.has_images) passedChecks++;
+  const passedChecks = [
+    deterministic_checks.format_check.accepted_format,
+    deterministic_checks.size_check.size_within_limit,
+    deterministic_checks.slide_count_check.slide_count_within_limit,
+    probabilistic_checks.title_slide_check.has_title_slide,
+    probabilistic_checks.bullet_point_check.has_few_bullet_points,
+    probabilistic_checks.image_check.has_images,
+  ].filter(Boolean).length;
 
   const progressPercentage = (passedChecks / totalChecks) * 100;
 
