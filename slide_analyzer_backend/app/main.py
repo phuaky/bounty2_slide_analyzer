@@ -1,7 +1,7 @@
 import sys
 from dotenv import load_dotenv
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import slide_analysis
 from app.logging_config import setup_logging
@@ -33,15 +33,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(slide_analysis.router, prefix="/api")
+
 app.mount("/",
           StaticFiles(directory="../slide_analyzer_frontend/out", html=True),
           name="frontend")
-# Include routers
-app.include_router(slide_analysis.router)
+
 
 # Event handlers (if any)
-
-
 @app.on_event("startup")
 async def startup_event():
     # Initialize any resources here

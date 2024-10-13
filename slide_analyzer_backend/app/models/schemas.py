@@ -107,9 +107,10 @@ class AnalysisResponse(BaseModel):
     probabilistic_checks: ProbabilisticCheckResult
     status: Optional[Status] = None
     admin_info: Optional[AdminInfo] = None
-    slides: list[SlideInfo] = []  # Add this field to include slide information
+    slides: Optional[List[SlideInfo]] = None  # Assuming slides is optional
+    processing_id: str  # Add this line
 
 
 class SlideInfo(BaseModel):
     slide_number: int
-    image_path: str
+    image_url: str

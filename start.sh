@@ -10,7 +10,7 @@ popd
 echo "Building frontend..."
 pushd slide_analyzer_frontend
 npm install
-npm run build
+npm run dev &
 popd
 
 # Run backend (which serves the frontend)

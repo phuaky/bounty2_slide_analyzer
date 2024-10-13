@@ -6,39 +6,7 @@ import React, { useState } from "react";
 import SlidePreview from "./SlidePreview";
 import SlideAnalysis from "./SlideAnalysis";
 import ProgressBar from "./ProgressBar";
-
-// You can move this interface to a separate 'types.ts' file and import it where needed
-interface DeterministicChecks {
-  format_check: boolean;
-  size_check: boolean;
-  slide_count_check: boolean;
-  total_slides: number;
-  average_words_per_slide: number;
-  // Add other properties as needed
-}
-
-interface Analysis {
-  is_title_slide: boolean;
-  bullet_points: number;
-  images: number;
-  adheres_to_best_practices: boolean;
-  suggestions: string;
-}
-
-interface SlideAnalysisItem {
-  slide_number: number;
-  analysis: Analysis;
-}
-
-interface AnalysisResult {
-  file_analysis: {
-    number_of_slides: number;
-  };
-  probabilistic_checks: {
-    slide_analyses: SlideAnalysisItem[];
-  };
-  deterministic_checks: DeterministicChecks;
-}
+import { AnalysisResult } from "../../../shared/types";
 
 const UploadForm: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -74,7 +42,7 @@ const UploadForm: React.FC = () => {
     formData.append("deck_format", deckFormat);
 
     try {
-      const response = await fetch("/process-slide-deck/", {
+      const response = await fetch("/api/process-slide-deck/", {
         method: "POST",
         body: formData,
       });
@@ -84,6 +52,7 @@ const UploadForm: React.FC = () => {
       }
 
       const result: AnalysisResult = await response.json();
+      console.warn("AnalysisResult:", result);
       setMessage("File uploaded and analyzed successfully!");
       setAnalysisResult(result);
     } catch (error) {
@@ -162,7 +131,7 @@ const UploadForm: React.FC = () => {
           {/* Slide Preview */}
           <div className="md:w-1/3 pr-4">
             <SlidePreview
-              numberOfSlides={analysisResult.file_analysis.number_of_slides}
+              slides={analysisResult.slides}
               selectedSlide={selectedSlide}
               setSelectedSlide={setSelectedSlide}
             />

@@ -8,21 +8,15 @@ from pdf2image import convert_from_path  # For PDF files
 from pptx import Presentation  # For PPTX files
 
 from app.utils.deterministic_checks import format_check, size_check, slide_count_check
-from app.utils.file_analyzers import (
-    analyze_pptx, analyze_pdf, analyze_markdown, analyze_keynote,
-    analyze_google_slides, analyze_canva, analyze_figma
-)
+from app.utils.file_analyzers import (analyze_pptx, analyze_pdf,
+                                      analyze_markdown, analyze_keynote,
+                                      analyze_google_slides, analyze_canva,
+                                      analyze_figma)
 from app.utils.probabilistic_checks import analyze_slide_image
-from app.models.schemas import (
-    FileAnalysisResult,
-    DeterministicCheckResult,
-    ProbabilisticCheckResult,
-    SlideAnalysis,
-    AnalysisResponse,
-    TitleSlideCheck,
-    ImageCheck,
-    BulletPointCheck
-)
+from app.models.schemas import (FileAnalysisResult, DeterministicCheckResult,
+                                ProbabilisticCheckResult, SlideAnalysis,
+                                AnalysisResponse, TitleSlideCheck, ImageCheck,
+                                BulletPointCheck)
 from pydantic import ValidationError
 
 # Get the logger
@@ -37,7 +31,8 @@ def is_url(path):
         return False
 
 
-async def process_slide_deck(input_path: str) -> AnalysisResponse:
+async def process_slide_deck(input_path: str,
+                             processing_id: str) -> AnalysisResponse:
     logger.info(f"Starting to process slide deck: {input_path}")
     try:
         # Step 1: Format Identification
@@ -72,12 +67,22 @@ async def process_slide_deck(input_path: str) -> AnalysisResponse:
         logger.info("Performing deterministic checks")
         deterministic_checks = DeterministicCheckResult(
             format_check=format_check(input_path) if is_file else {
-                "accepted_format": True, "file_type": file_format, "message": "URL format accepted"},
-            size_check=size_check(os.path.getsize(input_path) / (1024 * 1024)) if is_file else {
-                "size_within_limit": True, "file_size_mb": 0, "message": "Size check not applicable for URLs"},
-            slide_count_check={"slide_count_within_limit": True, "slide_count": 0,
-                               "message": "Slide count will be determined in detailed analysis"}
-        )
+                "accepted_format": True,
+                "file_type": file_format,
+                "message": "URL format accepted"
+            },
+            size_check=size_check(os.path.getsize(input_path) / (1024 * 1024))
+            if is_file else {
+                "size_within_limit": True,
+                "file_size_mb": 0,
+                "message": "Size check not applicable for URLs"
+            },
+            slide_count_check={
+                "slide_count_within_limit": True,
+                "slide_count": 0,
+                "message":
+                "Slide count will be determined in detailed analysis"
+            })
         logger.debug(f"Deterministic checks result: {deterministic_checks}")
 
         # Step 3: Detailed File Analysis and Slide Image Generation
@@ -119,7 +124,8 @@ async def process_slide_deck(input_path: str) -> AnalysisResponse:
 
         else:
             logger.error(
-                f"Unsupported file format for slide image extraction: {file_format}")
+                f"Unsupported file format for slide image extraction: {file_format}"
+            )
             return None
 
         # Step 4: Probabilistic Checks using GPT-4 on slide images
@@ -137,12 +143,14 @@ async def process_slide_deck(input_path: str) -> AnalysisResponse:
             analysis = await analyze_slide_image(image_data, slide_number)
 
             # Check if analysis contains required keys
-            required_keys = ['is_title_slide', 'bullet_points',
-                             'images', 'adheres_to_best_practices', 'suggestions']
+            required_keys = [
+                'is_title_slide', 'bullet_points', 'images',
+                'adheres_to_best_practices', 'suggestions'
+            ]
             if all(key in analysis for key in required_keys):
                 probabilistic_checks.append(
-                    SlideAnalysis(slide_number=slide_number, analysis=analysis)
-                )
+                    SlideAnalysis(slide_number=slide_number,
+                                  analysis=analysis))
 
                 # Aggregate data for checks
                 if analysis.get('is_title_slide'):
@@ -151,10 +159,11 @@ async def process_slide_deck(input_path: str) -> AnalysisResponse:
                 total_images += analysis.get('images', 0)
             else:
                 logging.error(
-                    f"Analysis for slide {slide_number} is incomplete. Skipping.")
+                    f"Analysis for slide {slide_number} is incomplete. Skipping."
+                )
 
-            # Save the image to disk
-            image_path = get_slide_image_path(input_path, slide_number)
+            # When saving the slide images, use the processing_id
+            image_path = get_slide_image_path(processing_id, slide_number)
             with open(image_path, 'wb') as f:
                 f.write(image_data)
             logger.debug(f"Saved slide image: {image_path}")
@@ -162,32 +171,29 @@ async def process_slide_deck(input_path: str) -> AnalysisResponse:
         # Create the required checks
         title_slide_check = TitleSlideCheck(
             has_title_slide=title_slide_present,
-            message="Title slide is present." if title_slide_present else "Title slide is missing."
-        )
+            message="Title slide is present."
+            if title_slide_present else "Title slide is missing.")
 
         max_bullet_points = 10  # Adjust as needed
         bullet_point_check = BulletPointCheck(
             has_few_bullet_points=total_bullet_points <= max_bullet_points,
-            message=f"Total bullet points: {total_bullet_points}."
-        )
+            message=f"Total bullet points: {total_bullet_points}.")
 
-        image_check = ImageCheck(
-            has_images=total_images > 0,
-            image_count=total_images,
-            message=f"Total images: {total_images}."
-        )
+        image_check = ImageCheck(has_images=total_images > 0,
+                                 image_count=total_images,
+                                 message=f"Total images: {total_images}.")
 
         probabilistic_checks_result = ProbabilisticCheckResult(
             title_slide_check=title_slide_check,
             bullet_point_check=bullet_point_check,
             image_check=image_check,
-            slide_analyses=probabilistic_checks
-        )
+            slide_analyses=probabilistic_checks)
 
         # Step 5: Construct and validate the final response
         logger.info("Constructing final response")
         try:
             analysis_response = AnalysisResponse(
+                processing_id=processing_id,
                 deterministic_checks=deterministic_checks,
                 file_analysis=FileAnalysisResult(
                     number_of_slides=total_slides,
@@ -210,22 +216,12 @@ async def process_slide_deck(input_path: str) -> AnalysisResponse:
         return None
 
 
-def get_slide_image_path(file_location: str, slide_number: int) -> str:
+def get_slide_image_path(processing_id: str, slide_number: int) -> str:
     """
-    Generate the path for a slide image based on the original file location and slide number.
-
-    :param file_location: Path to the original slide deck file
-    :param slide_number: Number of the slide
-    :return: Path to the slide image
+    Generate the path for a slide image based on the processing ID and slide number.
     """
-    # Get the directory of the original file
-    base_dir = os.path.dirname(file_location)
-
-    # Get the filename without extension
-    file_name = os.path.splitext(os.path.basename(file_location))[0]
-
-    # Create a subdirectory for the slide images if it doesn't exist
-    slides_dir = os.path.join(base_dir, f"{file_name}_slides")
+    # Create a directory for the slides if it doesn't exist
+    slides_dir = os.path.join('uploads', processing_id)
     os.makedirs(slides_dir, exist_ok=True)
 
     # Generate the path for the specific slide image
