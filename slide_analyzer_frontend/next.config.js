@@ -1,11 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  swcMinify: false, // Disable minification
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:8000/api/:path*', // Proxy to Backend
+      },
+    ];
+  },
   images: {
-    domains: [
-      "1418d83d-5628-4e22-aa05-9e0a1e652aa6-00-1vrvyf7rhyugz.worf.replit.dev",
-    ],
-    unoptimized: true,
+    domains: ['localhost', '127.0.0.1'],
   },
 };
 

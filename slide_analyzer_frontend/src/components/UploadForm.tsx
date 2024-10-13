@@ -7,6 +7,7 @@ import SlidePreview from "./SlidePreview";
 import SlideAnalysis from "./SlideAnalysis";
 import ProgressBar from "./ProgressBar";
 import { AnalysisResult } from "../../../shared/types";
+import axios from "axios";
 
 const UploadForm: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -26,38 +27,29 @@ const UploadForm: React.FC = () => {
     setDeckFormat(e.target.value);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file) {
-      setMessage("Please select a file to upload.");
-      return;
-    }
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('deck_format', deckFormat);
 
     setIsLoading(true);
     setMessage("");
-    setAnalysisResult(null);
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("deck_format", deckFormat);
 
     try {
-      const response = await fetch("/api/process-slide-deck/", {
-        method: "POST",
-        body: formData,
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/process-slide-deck`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result: AnalysisResult = await response.json();
-      console.warn("AnalysisResult:", result);
-      setMessage("File uploaded and analyzed successfully!");
-      setAnalysisResult(result);
+      console.log(response.data);
+      setAnalysisResult(response.data);
+      setMessage("Analysis completed successfully!");
     } catch (error) {
-      console.error("There was an error uploading the file!", error);
-      setMessage("There was an error uploading and analyzing the file.");
+      console.error('There was an error uploading the file!', error);
+      setMessage("Error: Failed to analyze the slide deck. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -106,9 +98,8 @@ const UploadForm: React.FC = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full py-2 px-4 rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none ${
-            isLoading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          className={`w-full py-2 px-4 rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none ${isLoading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
         >
           {isLoading ? "Analyzing..." : "Upload and Analyze"}
         </button>
@@ -116,9 +107,8 @@ const UploadForm: React.FC = () => {
         {/* Message Display */}
         {message && (
           <p
-            className={`mt-2 text-sm ${
-              message.includes("error") ? "text-red-600" : "text-green-600"
-            }`}
+            className={`mt-2 text-sm ${message.includes("error") ? "text-red-600" : "text-green-600"
+              }`}
           >
             {message}
           </p>

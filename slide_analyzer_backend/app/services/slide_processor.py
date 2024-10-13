@@ -32,7 +32,8 @@ def is_url(path):
 
 
 async def process_slide_deck(input_path: str,
-                             processing_id: str) -> AnalysisResponse:
+                             processing_id: str,
+                             deck_format: str) -> AnalysisResponse:
     logger.info(f"Starting to process slide deck: {input_path}")
     try:
         # Step 1: Format Identification
@@ -71,7 +72,8 @@ async def process_slide_deck(input_path: str,
                 "file_type": file_format,
                 "message": "URL format accepted"
             },
-            size_check=size_check(os.path.getsize(input_path) / (1024 * 1024))
+            size_check=size_check(
+                os.path.getsize(input_path) / (1024 * 1024))
             if is_file else {
                 "size_within_limit": True,
                 "file_size_mb": 0,
@@ -119,12 +121,15 @@ async def process_slide_deck(input_path: str,
                 logger.warning(
                     "Slide image extraction for PPTX is not implemented.")
                 # Save placeholder image
-                Image.new('RGB', (1280, 720), color='gray').save(image_path)
-                logger.debug(f"Saved placeholder slide image: {image_path}")
+                Image.new('RGB', (1280, 720),
+                          color='gray').save(image_path)
+                logger.debug(
+                    f"Saved placeholder slide image: {image_path}")
 
         else:
             logger.error(
-                f"Unsupported file format for slide image extraction: {file_format}"
+                f"Unsupported file format for slide image extraction: {
+                    file_format}"
             )
             return None
 
@@ -159,7 +164,8 @@ async def process_slide_deck(input_path: str,
                 total_images += analysis.get('images', 0)
             else:
                 logging.error(
-                    f"Analysis for slide {slide_number} is incomplete. Skipping."
+                    f"Analysis for slide {
+                        slide_number} is incomplete. Skipping."
                 )
 
             # When saving the slide images, use the processing_id
@@ -191,24 +197,20 @@ async def process_slide_deck(input_path: str,
 
         # Step 5: Construct and validate the final response
         logger.info("Constructing final response")
-        try:
-            analysis_response = AnalysisResponse(
-                processing_id=processing_id,
-                deterministic_checks=deterministic_checks,
-                file_analysis=FileAnalysisResult(
-                    number_of_slides=total_slides,
-                    fonts_used=[],  # Placeholder, replace with actual data
-                    video_present=False,  # Placeholder, replace with actual data
-                    audio_present=False  # Placeholder, replace with actual data
-                ),
-                probabilistic_checks=probabilistic_checks_result
-                # Provide other required fields or make them optional
-            )
-            logger.info("Analysis response created successfully")
-            return analysis_response
-        except ValidationError as e:
-            logger.error(f"Validation error in AnalysisResponse: {e}")
-            return None
+        analysis_response = AnalysisResponse(
+            processing_id=processing_id,
+            deterministic_checks=deterministic_checks,
+            file_analysis=FileAnalysisResult(
+                number_of_slides=total_slides,
+                fonts_used=[],  # Placeholder, replace with actual data
+                video_present=False,  # Placeholder, replace with actual data
+                audio_present=False  # Placeholder, replace with actual data
+            ),
+            probabilistic_checks=probabilistic_checks_result
+            # Provide other required fields or make them optional
+        )
+        logger.info("Analysis response created successfully")
+        return analysis_response
 
     except Exception as e:
         logger.error(f"Error in process_slide_deck: {str(e)}")

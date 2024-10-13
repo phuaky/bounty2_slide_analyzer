@@ -28,7 +28,7 @@ logger = setup_logging()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Add your frontend URL
+    allow_origins=["http://localhost:3000"],  # Next.js dev server
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,12 +37,11 @@ app.add_middleware(
 # Include routers
 app.include_router(slide_analysis.router, prefix="/api")
 
-app.mount("/",
-          StaticFiles(directory="../slide_analyzer_frontend/out", html=True),
-          name="frontend")
-
+# app.mount("/", StaticFiles(directory="../slide_analyzer_frontend/out", html=True), name="frontend")
 
 # Event handlers (if any)
+
+
 @app.on_event("startup")
 async def startup_event():
     # Initialize any resources here

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("/process-slide-deck/", response_model=AnalysisResponse)
+@router.post("/process-slide-deck", response_model=AnalysisResponse)
 async def process_slide_deck_endpoint(deck_format: str = Form(...),
                                       file: UploadFile = File(...)):
 
@@ -44,7 +44,8 @@ async def process_slide_deck_endpoint(deck_format: str = Form(...),
     # Process the slide deck
     try:
         logger.info(f"Starting to process slide deck: {file_location}")
-        result = await process_slide_deck(file_location, processing_id)
+        # Pass deck_format here
+        result = await process_slide_deck(file_location, processing_id, deck_format)
         if result is None:
             logger.error("Processing failed, result is None")
             raise HTTPException(status_code=500, detail="Processing failed.")
