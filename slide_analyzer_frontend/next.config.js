@@ -1,10 +1,11 @@
-/** @type {import('next').NextConfig} */
+// next.config.js
 const nextConfig = {
   async rewrites() {
     return [
+      // Proxy all API requests except those under /api/auth/
       {
-        source: '/api/:path*',
-        destination: 'http://localhost:8000/api/:path*', // Proxy to Backend
+        source: '/api/:path((?!auth/).*)', // Exclude paths starting with 'auth/'
+        destination: 'http://localhost:8000/api/:path*',
       },
     ];
   },

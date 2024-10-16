@@ -1,6 +1,8 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import localFont from "next/font/local";
+import { Providers } from "../components/Providers";
+import Navbar from "../components/Navbar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -29,7 +31,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className={`${inter.className} font-sans`}>
-        <main className="container mx-auto mt-8">{children}</main>
+        <Providers>
+          <main className="container mx-auto mt-8">{children}</main>
+        </Providers>
       </body>
     </html>
   );
