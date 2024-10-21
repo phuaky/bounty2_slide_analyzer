@@ -201,54 +201,71 @@ def analyze_canva(url):
     }
 
 
-def analyze_figma(file_url):
+def analyze_figma(figma_url):
     # Replace 'YOUR_FIGMA_ACCESS_TOKEN' with your actual token
-    access_token = os.getenv(
-        'FIGMA_ACCESS_TOKEN')  # Store your token in Replit secrets
-    if not access_token:
-        return {
-            'error':
-            'Figma access token not found. Please set FIGMA_ACCESS_TOKEN in environment variables.'
-        }
-
-    # Extract file key from URL
-    m = re.search(r'file/([a-zA-Z0-9]+)', file_url)
-    if not m:
-        return {'error': 'Invalid Figma file URL'}
-
-    file_key = m.group(1)
-
-    # Get the file data
-    url = f'https://api.figma.com/v1/files/{file_key}'
-    response = requests.get(url, headers=headers)
+    file_key_match = re.search(r'/design/([^/]+)', figma_url)
+    if not file_key_match:
+        return 'Invalid Figma URL format'
+    
+    file_key = file_key_match.group(1)
+    api_url = f'https://api.figma.com/v1/files/{file_key}'
+    headers = {'X-Figma-Token': 'YOUR_FIGMA_ACCESS_TOKEN'}  # Replace with your Figma API token
+    
+    response = requests.get(api_url, headers=headers)
     if response.status_code != 200:
-        return {'error': f'Error fetching Figma file: {response.text}'}
+        return f'Error fetching data from Figma API: {response.status_code}'
 
     data = response.json()
 
-    num_slides = 0
-    fonts_used = set()
-    video_present = False
-    audio_present = False
+    slides_count = 0
+    fonts = set()
+    video_media = False
+    video_media_count = 0  # New variable to count video media instances
 
-    def traverse(node):
-        nonlocal num_slides, fonts_used
-        if node['type'] == 'FRAME':
-            num_slides += 1
-        if 'style' in node:
-            font_family = node['style'].get('fontFamily')
-            if font_family:
-                fonts_used.add(font_family)
+    contains_audio = False
+
+    def traverse_node(node, level=0):
+        nonlocal slides_count, video_media, contains_audio, video_media_count
+        
+        indent = "  " * level
+        #print(f"{indent}Node: {node.get('name', 'Unnamed')} (Type: {node['type']})")
+        
+        if node['type'] == 'CANVAS':
+            slides_count = len(node.get('children', []))
+            print(f"{indent}Found {slides_count} slides in {node.get('name', 'Unnamed')}")
+
+        if'style' in node and 'fontFamily' in node['style']:
+            fonts.add(node['style']['fontFamily'])
+            #print(f"{indent}Font found: {node['style']['fontFamily']}")
+            
+            # **Check for Video Fill in Nodes**
+        if 'interactions' in node:
+            for interaction in node['interactions']:
+                if 'actions' in interaction:
+                    for action in interaction['actions']:
+                        if action.get('type') == 'UPDATE_MEDIA_RUNTIME' and action.get('mediaAction') == 'TOGGLE_PLAY_PAUSE':
+                            video_media = True
+                            video_media_count += 1  # Increment video media count
+                            print(f"{indent}Video media found in {node.get('name', 'Unnamed')}")
+                                                                           
         if 'children' in node:
+            # print(f"{indent}Traversing {len(node['children'])} children of {node.get('name', 'Unnamed')}")
             for child in node['children']:
-                traverse(child)
+                traverse_node(child, level + 1)
 
-    document = data['document']
-    traverse(document)
+    print("Starting document traversal")
+    traverse_node(data['document'], 0)
+
+    print(f"\nTotal slides found: {slides_count}")
+    print(f"Fonts found: {fonts}")
+    print(f"Video media present: {video_media}")
+    print(f"Video media count: {video_media_count}")
+    print(f"Audio in video: {contains_audio}")
 
     return {
-        'number_of_slides': num_slides,
-        'fonts_used': list(fonts_used),
-        'video_present': video_present,  # Not directly accessible via API
-        'audio_present': audio_present,  # Not directly accessible via API
+        'slides_count': slides_count,
+        'fonts': list(fonts),
+        'video_media': video_media,
+        'video_media_count': video_media_count,
+        'contains_audio': contains_audio
     }
