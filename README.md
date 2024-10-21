@@ -1,29 +1,31 @@
 # Slide Analyzer Project
 
-This project consists of a frontend and a backend for analyzing slide presentations. Below are the instructions to set up and run both parts of the project using a virtual environment (venv).
+This project consists of a frontend and a backend for analyzing slide presentations. Below are the instructions to set up and run the project on your local machine.
 
 ## Prerequisites
 
 - Python 3.x
-- Node.js and npm (for the frontend)
-- Virtualenv package (if not installed, you can install it using `pip install virtualenv`)
+- Node.js and npm
+- Git
 
-## Backend Setup
+## Setup and Installation
 
 1. **Clone the repository:**
 
    ```sh
-   git clone https://github.com/yourusername/slide_analyzer_backend.git
-   cd slide_analyzer_backend
+   git clone https://github.com/yourusername/slide-analyzer.git
+   cd slide-analyzer
    ```
 
-2. **Create a virtual environment:**
+2. **Backend Setup:**
+
+   a. Create a virtual environment:
 
    ```sh
    python -m venv venv
    ```
 
-3. **Activate the virtual environment:**
+   b. Activate the virtual environment:
 
    - On Windows:
      ```sh
@@ -34,49 +36,78 @@ This project consists of a frontend and a backend for analyzing slide presentati
      source venv/bin/activate
      ```
 
-4. **Install the required packages:**
+   c. Install the required packages:
 
    ```sh
    pip install -r requirements.txt
    ```
 
-5. **Run the backend server:**
+3. **Frontend Setup:**
 
-   ```sh
-   uvicorn app.main:app --reload
-   ```
-
-   The backend server should now be running at `http://127.0.0.1:8000`.
-
-## Frontend Setup
-
-1. **Navigate to the frontend directory:**
+   a. Navigate to the frontend directory:
 
    ```sh
    cd slide_analyzer_frontend
    ```
 
-2. **Install the required packages:**
+   b. Install the required packages:
 
    ```sh
    npm install
    ```
 
-3. **Run the frontend development server:**
+   c. Return to the project root:
 
    ```sh
-   npm start
+   cd ..
    ```
-
-   The frontend should now be running at `http://localhost:3000`.
 
 ## Running the Project
 
-1. Ensure that both the backend and frontend servers are running.
-2. Open your web browser and navigate to `http://localhost:3000`.
-3. You should now be able to use the Slide Analyzer application.
+1. Make sure you're in the project root directory.
 
-## Additional Notes
+2. Ensure that the `start.sh` script has execute permissions:
 
-- Make sure to update the CORS settings in `app/main.py` to allow requests from your frontend's URL in a production environment.
-- If you encounter any issues, please refer to the documentation or raise an issue on the project's GitHub repository.
+   ```sh
+   chmod +x start.sh
+   ```
+
+3. Run the project using the start script:
+
+   ```sh
+   ./start.sh
+   ```
+
+   This script will:
+
+   - Start the backend server
+   - Start the frontend development server
+   - Open your default web browser to the application
+
+4. The application should now be running:
+   - Backend: `http://localhost:8000`
+   - Frontend: `http://localhost:3000`
+
+## Additional Configuration
+
+- If you need to change the ports or other configuration settings, you can modify the `start.sh` script and the respective configuration files for the backend and frontend.
+
+## Troubleshooting
+
+- If you encounter any issues with dependencies, make sure both your Python and Node.js installations are up to date.
+- For backend issues, check the console where you ran `./start.sh` for Python error messages.
+- For frontend issues, check the browser's developer console for JavaScript errors.
+
+## Development
+
+- The backend code is located in the `slide_analyzer_backend` directory.
+- The frontend code is located in the `slide_analyzer_frontend` directory.
+- Make sure to activate the virtual environment (`source venv/bin/activate` or `venv\Scripts\activate` on Windows) when working on the backend.
+
+## Contributing
+
+If you'd like to contribute to this project, please fork the repository and create a pull request with your changes.
+
+## Support
+
+If you encounter any issues or have questions, please file an issue on the project's GitHub repository.
